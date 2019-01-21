@@ -16,8 +16,9 @@ export default {
   },
   mounted: function () {
     // let map = L.map('map').setView([39.56, 116.34], 10)
-    var map = L.map('map').setView([45.526, -122.667], 13)
+    let map = L.map('map').setView([45.526, -122.667], 13)
     basemapLayer('Streets').addTo(map)
+    console.log(map)
     featureLayer({url: 'https://services.arcgis.com/rOo16HdIMeOBI4Mb/arcgis/rest/services/Heritage_Trees_Portland/FeatureServer/0'}).addTo(map)
   }
 }
