@@ -20,6 +20,8 @@ export default {
     basemapLayer('Streets').addTo(map)
     console.log(map)
     console.log(basemapLayer)
+    console.log(map)
+    console.log(basemapLayer)
     featureLayer({url: 'https://services.arcgis.com/rOo16HdIMeOBI4Mb/arcgis/rest/services/Heritage_Trees_Portland/FeatureServer/0'}).addTo(map)
   }
 }
