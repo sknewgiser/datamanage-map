@@ -1,23 +1,28 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <router-view/>
+    <app-pane></app-pane>
+    <app-map></app-map>
   </div>
 </template>
 
 <script>
+import Map from './views/Map'
+import pane from './components/pane'
 export default {
-  name: 'App'
+  name: 'App',
+  components: {
+    'app-map': Map,
+    'app-pane': pane
+  },
+  data () {
+    return {
+    }
+  }
 }
 </script>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+<style scoped>
+/* #app{
+  background-color: rebeccapurple;
+} */
 </style>
