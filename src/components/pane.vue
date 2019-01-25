@@ -196,6 +196,8 @@
 <script>
 // import colorPicker from '@caohenghu/vue-colorpicker'
 import { VueColorpicker } from 'vue-pop-colorpicker'
+import colorMaps from 'color_ramps'
+console.log(colorMaps)
 export default {
   name: 'pane',
   components: {

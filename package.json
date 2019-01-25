@@ -13,6 +13,7 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "color_ramps": "^1.0.4",
     "vue": "^2.5.2",
     "vue-pop-colorpicker": "^1.0.2",
     "vue-router": "^3.0.1"
