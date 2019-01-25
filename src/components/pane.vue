@@ -7,9 +7,9 @@
         <span>{{item.type}}</span>
       </div>
       <p>符号化选项</p>
-      <div class ='symbol'>
+      <div class ='simple-symbol' ref='simple'>
         <div class='symbol-color'>
-          <p><span>符号颜色:</span></p>
+          <span class="option-title">符号颜色</span>
           <div class='symbol-color-box'>
             <div class='symbol-color-opacity' v-on:click="symbol_toggle">{{symbol_color_opacity}}
               <div class="symbol-opacity-range" v-show="symbol_show" >
@@ -23,7 +23,7 @@
           </div>
         </div>
         <div class='line-color'>
-          <p><span>轮廓颜色:</span></p>
+          <span class='option-title'>轮廓颜色</span>
           <div class='line-color-box'>
             <div class='line-color-opacity' v-on:click="line_toggle">{{line_color_opacity}}
               <div class="line-opacity-range" v-show="line_show" >
@@ -35,7 +35,139 @@
           </div>
         </div>
         <div class='outline-type'>
-          <p><span>轮廓线型:</span></p>
+          <span class='option-title'>轮廓线型</span>
+          <div class="outline-type-box">
+            <div class='outline-width' v-on:click="width_toggle">{{line_width}}
+              <div class="outline-width-range" v-show="width_show" >
+                  <span>宽度</span>
+                  <input v-on:click="widthChanged" ref="range3" id="line-width" type="range" max=10 min=0 value=1 step=0.1 />
+              </div>
+            </div>
+            <div class="outline-type-selectBox" v-on:click.stop="arrowDown" title="请选择">
+              <img :src="unitUrl" style="position:absolute;width:80px;height:2px;margin-left:10px;margin-top:10px"/>
+              <div class="selectBox_show">
+                <i class="icon icon_arrowDown"></i>
+              </div>
+              <div class="selectBox_list" v-show="isShowSelect">
+                <div class="selectBox_listLi" v-for="(item, index) in symbolImageList" :key="index"
+                    @click.stop="select(item, index)" :title="item.value">
+                    <img :src="item.url" style="width:100px;height:2px;"/>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class ='unique-symbol' ref='unique' style="display:none">
+        <div class='option-field'>
+          <span class='option-title'>渲染字段</span>
+          <div class="render-field-selectBox" v-on:click.stop="fieldListArrowDown" title="请选择">
+            <span>{{curField}}</span>
+            <div class="selectBox_show">
+                  <i class="icon icon_arrowDown"></i>
+            </div>
+            <ul class="selectfield_list" v-show="isShowField" >
+              <li class="field_listLi" v-for="(item, index) in fieldList" :key="index"
+                  @click.stop="selectField(item, index)">
+                  {{item}}
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class='symbol-color'>
+          <span class='option-title'>填充颜色</span>
+          <div class='symbol-color-box'>
+            <div class='symbol-color-opacity' v-on:click="symbol_toggle">{{symbol_color_opacity}}
+              <div class="symbol-opacity-range" v-show="symbol_show" >
+                <!-- <div class="opacity-range"> -->
+                  <span>透明度</span>
+                  <input v-on:click="rangeChanged1" ref="range1" id="symbol-size" type="range" max=1 min=0 value=1 step=0.1 />
+                <!-- </div> -->
+              </div>
+            </div>
+            <color-picker type="sketch" v-model="symbol_color" @change="onColorChange"></color-picker>
+          </div>
+        </div>
+        <div class='line-color'>
+          <span class='option-title'>轮廓颜色</span>
+          <div class='line-color-box'>
+            <div class='line-color-opacity' v-on:click="line_toggle">{{line_color_opacity}}
+              <div class="line-opacity-range" v-show="line_show" >
+                  <span>透明度</span>
+                  <input v-on:click="rangeChanged2" ref="range2" id="symbol-size" type="range" max=1 min=0 value=1 step=0.1 />
+              </div>
+            </div>
+            <color-picker type="sketch" v-model="line_color" @change="onColorChange"></color-picker>
+          </div>
+        </div>
+        <div class='outline-type'>
+          <span class='option-title'>轮廓线型</span>
+          <div class="outline-type-box">
+            <div class='outline-width' v-on:click="width_toggle">{{line_width}}
+              <div class="outline-width-range" v-show="width_show" >
+                  <span>宽度</span>
+                  <input v-on:click="widthChanged" ref="range3" id="line-width" type="range" max=10 min=0 value=1 step=0.1 />
+              </div>
+            </div>
+            <div class="outline-type-selectBox" v-on:click.stop="arrowDown" title="请选择">
+              <img :src="unitUrl" style="position:absolute;width:80px;height:2px;margin-left:10px;margin-top:10px"/>
+              <div class="selectBox_show">
+                <i class="icon icon_arrowDown"></i>
+              </div>
+              <div class="selectBox_list" v-show="isShowSelect">
+                <div class="selectBox_listLi" v-for="(item, index) in symbolImageList" :key="index"
+                    @click.stop="select(item, index)" :title="item.value">
+                    <img :src="item.url" style="width:100px;height:2px;"/>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class ='classbreak-symbol' ref='classbreak' style="display:none">
+        <div class='option-field'>
+          <span class='option-title'>渲染字段</span>
+          <div class="render-field-selectBox" v-on:click.stop="fieldListArrowDown" title="请选择">
+            <span>{{curField}}</span>
+            <div class="selectBox_show">
+                  <i class="icon icon_arrowDown"></i>
+            </div>
+            <ul class="selectfield_list" v-show="isShowField" >
+              <li class="field_listLi" v-for="(item, index) in fieldList" :key="index"
+                  @click.stop="selectField(item, index)">
+                  {{item}}
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class='symbol-color'>
+          <span class='option-title'>填充颜色</span>
+          <div class='symbol-color-box'>
+            <div class='symbol-color-opacity' v-on:click="symbol_toggle">{{symbol_color_opacity}}
+              <div class="symbol-opacity-range" v-show="symbol_show" >
+                <!-- <div class="opacity-range"> -->
+                  <span>透明度</span>
+                  <input v-on:click="rangeChanged1" ref="range1" id="symbol-size" type="range" max=1 min=0 value=1 step=0.1 />
+                <!-- </div> -->
+              </div>
+            </div>
+            <color-picker type="sketch" v-model="symbol_color" @change="onColorChange"></color-picker>
+          </div>
+        </div>
+        <div class='line-color'>
+          <span class='option-title'>轮廓颜色</span>
+          <div class='line-color-box'>
+            <div class='line-color-opacity' v-on:click="line_toggle">{{line_color_opacity}}
+              <div class="line-opacity-range" v-show="line_show" >
+                  <span>透明度</span>
+                  <input v-on:click="rangeChanged2" ref="range2" id="symbol-size" type="range" max=1 min=0 value=1 step=0.1 />
+              </div>
+            </div>
+            <color-picker type="sketch" v-model="line_color" @change="onColorChange"></color-picker>
+          </div>
+        </div>
+        <div class='outline-type'>
+          <span class='option-title'>轮廓线型</span>
           <div class="outline-type-box">
             <div class='outline-width' v-on:click="width_toggle">{{line_width}}
               <div class="outline-width-range" v-show="width_show" >
@@ -86,6 +218,7 @@ export default {
       line_show: false,
       width_show: false,
       isShowSelect: false,
+      isShowField: false,
       symbolImageList: [
         // {key: -1, value: '请选择'},
         {key: 0, value: '实线', url: require('../assets/img/solid.png')},
@@ -93,8 +226,13 @@ export default {
         {key: 2, value: '长虚线', url: require('../assets/img/longdash.png')},
         {key: 3, value: '短虚线', url: require('../assets/img/shortdash.png')}
       ],
-      unitUrl: require('../assets/img/solid.png')
+      unitUrl: require('../assets/img/solid.png'),
+      fieldList: ['id', 'code', 'name', 'popu'],
+      curField: 'code'
     }
+  },
+  mounted: function () {
+    this.dynamic = 0
   },
   methods: {
     // onItemClick (index) {
@@ -139,24 +277,43 @@ export default {
     arrowDown () {
       this.isShowSelect = !this.isShowSelect
     },
+    fieldListArrowDown () {
+      this.isShowField = !this.isShowField
+    },
     select (item, index) {
       this.isShowSelect = false
-      console.log(item)
-      console.log(index)
-      this.unitModel = index
+      // console.log(item)
+      // console.log(index)
+      // this.unitModel = index
       this.unitUrl = item.url
     },
+    selectField (item, index) {
+      this.isShowField = false
+      console.log(item)
+      console.log(index)
+      this.curField = item
+      // this.unitModel = index
+    },
     simpleRenderer (index) {
-      console.log('simple')
+      // console.log('simple')
       this.dynamic = index
+      this.$refs.simple.style.display = 'block'
+      this.$refs.unique.style.display = 'none'
+      this.$refs.classbreak.style.display = 'none'
     },
     uniqueRenderer (index) {
       console.log('unique')
       this.dynamic = index
+      this.$refs.simple.style.display = 'none'
+      this.$refs.unique.style.display = 'block'
+      this.$refs.classbreak.style.display = 'none'
     },
     classifyRenderer (index) {
       console.log('classify')
       this.dynamic = index
+      this.$refs.simple.style.display = 'none'
+      this.$refs.unique.style.display = 'none'
+      this.$refs.classbreak.style.display = 'block'
     }
   },
   watch: {

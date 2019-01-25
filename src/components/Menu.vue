@@ -25,11 +25,11 @@ export default {
   name: 'Menu',
   data () {
     return {
-      img_logo: require('../assets/img/thupdi.jpg'),
+      img_logo: require('../assets/img/newlogo1.png'),
       background_color: '#fffff',
       itemList: [
-        {'logoUrl': require('../assets/img/data.png'), 'name': '地图'},
-        {'logoUrl': require('../assets/img/map.png'), 'name': '设置'}
+        {'logoUrl': require('../assets/img/data.png'), 'name': '数据'},
+        {'logoUrl': require('../assets/img/map.png'), 'name': '地图'}
       ],
       dynamic: -1
     }
@@ -54,7 +54,7 @@ export default {
     font-size: 1.25em;
     font-family: monospace;
     color: #4C4C4C;
-    width: 50px;
+    width: 56px;
     height: 100%;
     background-color: #273142;
     padding: 10px;
@@ -97,6 +97,7 @@ export default {
     width: 45px;
     height: 45px;
     margin-top: 30px;
+    margin-left: -3px;
     border-radius: 2px;
 }
 .item-container img{

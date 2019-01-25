@@ -12,19 +12,30 @@
     border: 1px solid #57585A;
     border-radius: 0px;
 }
-.control-pane p{
-  font-size: 20px;
+/* .control-pane p{
+ 
+} */
+.control-pane>p{
+  font-size: 18px;
   color: black;
   font-weight: bold;
 }
-.control-pane .symbol p span{
+.control-pane .simple-symbol p span{
   display: block;
-  font-size: 14px;
-  color: gray;
+  font-size: 13px;
+  color: #8A8A8A;
   float: left;
   padding: 10px;
   font-weight: normal;
 }
+/* .control-pane .unique-symbol p span{
+  display: block;
+  font-size: 13px;
+  color: #8A8A8A;
+  float: left;
+  padding: 10px;
+  font-weight: normal;
+} */
 .render-img{
   width: 28%;
   display: inline-block;
@@ -50,7 +61,7 @@
     height: 26px !important;
     padding: 6px !important;
     border: 1px solid #bfcbd9 !important;
-    border-radius: 0px 4px 4px 0px !important;
+    border-radius: 0px 2px 2px 0px !important;
     font-size: 0 !important;
     cursor: pointer !important;
     width: 100px !important;
@@ -69,7 +80,7 @@
   /* margin: 0; */
   /* display:inline; */
   border: 1px  solid #bfcbd9;
-  border-radius: 4px 0px 0px 4px;
+  border-radius: 2px 0px 0px 2px;
   border-right: 1px none; 
   text-align: center;
   line-height: 24px;
@@ -85,7 +96,7 @@
   height: 33px;
   background:white;
   border:1px solid #bfcbd9;
-  border-radius:4px;
+  border-radius:2px;
   z-index: 9999;
   margin-top: 4px;
 }
@@ -124,34 +135,134 @@ input[type=range]::-webkit-slider-thumb {
   width: 32px;
   height:22px;
   border: 1px solid #bfcbd9;
-  border-top-left-radius:4px;
+  border-top-left-radius:2px;
   border-top-right-radius:0px;
   border-bottom-right-radius:0px;
-  border-bottom-left-radius:4px;
+  border-bottom-left-radius:2px;
   text-align: center;
   line-height: 22px;
 }
 .outline-type-selectBox{
   /* float: left; */
-  margin-left: 117px;
+  margin-left: 113px;
   width: 100px;
   height:22px;
   border: 1px solid #bfcbd9;
   border-left: 1px none;
   border-top-left-radius:0px;
-  border-top-right-radius:4px;
-  border-bottom-right-radius:4px;
+  border-top-right-radius:2px;
+  border-bottom-right-radius:2px;
   border-bottom-left-radius:0px;
 }
 .selectBox_list{
   float: left;  
   display: grid;
-  margin-top: 25px;
+  margin-top: 6px;
   margin-left: -34px;
   width: 132px;
   height: 100px;
   border: 1px solid #bfcbd9;
-  border-radius: 3px;
+  border-radius: 2px;
   justify-content: center;
   cursor: pointer;
+}
+.render-field-selectBox{
+  float: left;
+  margin-top: -20px;
+  margin-left: 90px;
+  width: 132px;
+  height:22px;
+  border: 1px solid #bfcbd9;
+  border-top-left-radius:2px;
+  border-top-right-radius:2px;
+  border-bottom-right-radius:2px;
+  border-bottom-left-radius:2px;
+  text-align: center;
+  cursor: pointer;
+}
+.render-field-selectBox:active{
+  border: 1px solid  #0e9fff;
+}
+.selectfield_list{
+  position: absolute; 
+  display: grid;
+  margin-top: 6px;
+  margin-left: -1px;
+  width: 92px;
+  height: 100px;
+  border: 1px solid #bfcbd9;
+  border-radius: 2px;
+  justify-content: center;
+  cursor: pointer;
+  background: #fff;
+  box-shadow: 2px 3px 3px 2px #bfcbd9;
+  z-index: 9999;
+}
+li{
+  white-space: nowrap;
+  color: rgba(10, 18, 32, 1);
+  cursor: pointer;
+  /* width: 100%; */
+  text-overflow: ellipsis;
+  overflow: hidden;
+  margin-left: -87px;
+  background-image: none;
+}
+.option-title{
+  font-size: 13px;
+  color: #5f646e;
+  font-family: "PingFang SC", "Helvetica Neue", Helvetica, "Microsoft YaHei", Arial, sans-serif;
+}
+.simple-symbol .symbol-color, 
+.simple-symbol .line-color,
+.simple-symbol .outline-type{
+  display: -webkit-inline-box;
+  margin-top: 6px;
+}
+.simple-symbol .symbol-color-box, 
+.simple-symbol .line-color-box,
+.simple-symbol .outline-type-box{
+  margin-left: 37px;
+}
+.simple-symbol .outline-width{
+  width: 34px;
+}
+.simple-symbol .outline-type-selectBox{
+  margin-left: 34px;
+}
+
+.unique-symbol .symbol-color, 
+.unique-symbol .line-color,
+.unique-symbol .outline-type{
+  display: -webkit-inline-box;
+  margin-top: 6px;
+}
+.unique-symbol .symbol-color-box, 
+.unique-symbol .line-color-box,
+.unique-symbol .outline-type-box{
+  margin-left: 37px;
+}
+.unique-symbol .outline-width{
+  width: 34px;
+}
+.unique-symbol .outline-type-selectBox{
+  margin-left: 34px;
+}
+
+.classbreak-symbol .symbol-color, 
+.classbreak-symbol .line-color,
+.classbreak-symbol .outline-type{
+  display: -webkit-inline-box;
+  margin-top: 6px;
+}
+.classbreak-symbol .symbol-color-box, 
+.classbreak-symbol .line-color-box,
+.classbreak-symbol .outline-type-box{
+  margin-left: 37px;
+}
+.classbreak-symbol .outline-width{
+  width: 34px;
+}
+.classbreak-symbol .outline-type-selectBox{
+  margin-left: 34px;
 }
