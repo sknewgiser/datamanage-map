@@ -1,10 +1,13 @@
 <template>
   <div class='control-pane'>
-      <p>渲染类型</p>
-      <div class="render-img" v-for="(item,index) in renderTypeImageList" :key="index"
-       @click="item.onItemClick(index)">
-        <img :src="item.imgUrl" :class="{'active': index==dynamic}"/>
-        <span>{{item.type}}</span>
+       <p>渲染类型</p>
+       <div class='render-img'>
+        <img :src="imgUrl_simple" v-on:click="simpleRenderer"/>
+        <!-- <div>简单符号</div> -->
+        <img :src="imgUrl_unique" v-on:click="uniqueRenderer"/>
+        <!-- <div>唯一值渲染</div> -->
+        <img :src="imgUrl_class" v-on:click="classifyRenderer"/>
+        <!-- <div>分类渲染</div> -->
       </div>
       <p>符号化选项</p>
       <div class ='symbol'>
@@ -72,11 +75,10 @@ export default {
   data () {
     return {
       renderTypeImageList: [
-        {type: '单色填充', imgUrl: require('../assets/img/simple2.png'), onItemClick: this.simpleRenderer},
-        {type: '单值填充', imgUrl: require('../assets/img/unique.jpg'), onItemClick: this.uniqueRenderer},
-        {type: '分段填充', imgUrl: require('../assets/img/classbreak.jpg'), onItemClick: this.classifyRenderer}
+        {imgUrl_simple: require('../assets/img/simple.jpg'), onClick: simpleRenderer},
+        {imgUrl_unique: require('../assets/img/unique.jpg'), onClick: uniqueRenderer},
+        {imgUrl_class: require('../assets/img/class.jpg'), onClick: classifyRenderer}
       ],
-      dynamic: -1,
       symbol_color: 'green',
       line_color: 'blue',
       symbol_color_opacity: 1,
@@ -97,15 +99,6 @@ export default {
     }
   },
   methods: {
-    // onItemClick (index) {
-    //   if (index === 0) {
-    //     this.simpleRenderer(index)
-    //   } else if (index === 1) {
-    //     this.uniqueRenderer(index)
-    //   } else {
-    //     this.classifyRenderer(index)
-    //   }
-    // },
     onColorChange (color) {
       this.$emit('colorPicker', color)
     },
@@ -146,17 +139,14 @@ export default {
       this.unitModel = index
       this.unitUrl = item.url
     },
-    simpleRenderer (index) {
+    simpleRenderer (layer) {
       console.log('simple')
-      this.dynamic = index
     },
-    uniqueRenderer (index) {
+    uniqueRenderer (layer) {
       console.log('unique')
-      this.dynamic = index
     },
-    classifyRenderer (index) {
+    classifyRenderer (layer) {
       console.log('classify')
-      this.dynamic = index
     }
   },
   watch: {

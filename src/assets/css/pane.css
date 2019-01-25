@@ -1,0 +1,157 @@
+.control-pane {
+    position: absolute;
+    top: 0px;
+    left: 60px;
+    font-size: 1.25em;
+    font-family: monospace;
+    color: #4C4C4C;
+    width: 246px;
+    height: 100%;
+    background-color: white;
+    padding: 10px;
+    border: 1px solid #57585A;
+    border-radius: 0px;
+}
+.control-pane p{
+  font-size: 20px;
+  color: black;
+  font-weight: bold;
+}
+.control-pane .symbol p span{
+  display: block;
+  font-size: 14px;
+  color: gray;
+  float: left;
+  padding: 10px;
+  font-weight: normal;
+}
+.render-img{
+  width: 28%;
+  display: inline-block;
+  margin-left: 13px;
+}
+.render-img img {
+  width: 50px;
+  height: 50px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.render-img span{
+  font-size: 12px;
+}
+.active{
+  border:2px solid #0e9fff; 
+}
+
+.vue-colorpicker{
+    -webkit-appearance: none;/*清除系统默认样式*/
+    display: inline-block !important;
+    box-sizing: border-box !important;
+    height: 26px !important;
+    padding: 6px !important;
+    border: 1px solid #bfcbd9 !important;
+    border-radius: 0px 4px 4px 0px !important;
+    font-size: 0 !important;
+    cursor: pointer !important;
+    width: 100px !important;
+}
+/* .vc-sketch {
+  margin-left: -60px !important;
+  margin-top: 10px !important;
+} */
+.symbol-color-box, .line-color-box{
+  position: relative;
+}
+.symbol-color-opacity, .line-color-opacity{
+  width: 34px;
+  height: 24px;
+  float: left;
+  /* margin: 0; */
+  /* display:inline; */
+  border: 1px  solid #bfcbd9;
+  border-radius: 4px 0px 0px 4px;
+  border-right: 1px none; 
+  text-align: center;
+  line-height: 24px;
+}
+
+.symbol-opacity-range, .line-opacity-range, .outline-width-range{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* height: 100%; */
+  position: absolute;
+  width: 154px;
+  height: 33px;
+  background:white;
+  border:1px solid #bfcbd9;
+  border-radius:4px;
+  z-index: 9999;
+  margin-top: 4px;
+}
+.symbol-opacity-range span, .line-opacity-range span, .outline-width-range span{
+  font-size: 10px;
+  position: absolute;
+  margin-left: -54px;
+}
+/*横条样式*/
+input[type=range] {
+  -webkit-appearance: none;/*清除系统默认样式*/
+  width: 50%;
+  background: -webkit-linear-gradient(#61bd12, #61bd12) no-repeat, #ddd;/*设置左边颜色为#61bd12，右边颜色为#ddd*/
+  background-size: 75% 100%;/*设置左右宽度比例*/
+  height: 3px;/*横条的高度*/
+  position: absolute;
+  margin-left: 12px;
+  margin-top: 0px;
+}
+/*拖动块的样式*/
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;/*清除系统默认样式*/
+  height: 12px;/*拖动块高度*/
+  width: 12px;/*拖动块宽度*/
+  background: #fff;/*拖动块背景*/
+  border-radius: 50%; /*外观设置为圆形*/
+  border: solid 3px #61bd12; /*设置边框*/
+}
+
+.outline-type-box{
+  position: relative;
+}
+.outline-width{
+  float: left;
+  /* margin-left: 80px; */
+  width: 32px;
+  height:22px;
+  border: 1px solid #bfcbd9;
+  border-top-left-radius:4px;
+  border-top-right-radius:0px;
+  border-bottom-right-radius:0px;
+  border-bottom-left-radius:4px;
+  text-align: center;
+  line-height: 22px;
+}
+.outline-type-selectBox{
+  /* float: left; */
+  margin-left: 117px;
+  width: 100px;
+  height:22px;
+  border: 1px solid #bfcbd9;
+  border-left: 1px none;
+  border-top-left-radius:0px;
+  border-top-right-radius:4px;
+  border-bottom-right-radius:4px;
+  border-bottom-left-radius:0px;
+}
+.selectBox_list{
+  float: left;  
+  display: grid;
+  margin-top: 25px;
+  margin-left: -34px;
+  width: 132px;
+  height: 100px;
+  border: 1px solid #bfcbd9;
+  border-radius: 3px;
+  justify-content: center;
+  cursor: pointer;
+}

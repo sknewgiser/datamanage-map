@@ -18,11 +18,12 @@ export default {
     // let map = L.map('map').setView([39.56, 116.34], 10)
     let map = L.map('map').setView([45.526, -122.667], 13)
     basemapLayer('Streets').addTo(map)
-    console.log(map)
-    console.log(basemapLayer)
-    console.log(map)
-    console.log(basemapLayer)
     featureLayer({url: 'https://services.arcgis.com/rOo16HdIMeOBI4Mb/arcgis/rest/services/Heritage_Trees_Portland/FeatureServer/0'}).addTo(map)
+  },
+  methods: {
+    setColor () {
+
+    }
   }
 }
 </script>
@@ -30,9 +31,10 @@ export default {
 <style scoped>
 #map {
     position: absolute;
-    width: 85%;
-    height: 100%;
-    margin-left: 260px;
+    width: 82%;
+    height: 102%;
+    margin-left: 320px;
+    margin-top: -8px;
     border:1px solid #000
 }
 </style>
