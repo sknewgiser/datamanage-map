@@ -58,7 +58,7 @@
           </div>
         </div>
       </div>
-      <div class ='unique-symbol' ref='unique' style="display:none">
+      <div class ='classbreak-symbol' ref='classbreak' style="display:none">
         <div class='option-field'>
           <span class='option-title'>渲染字段</span>
           <div class="render-field-selectBox" v-on:click.stop="fieldListArrowDown" title="请选择">
@@ -69,6 +69,21 @@
             <ul class="selectfield_list" v-show="isShowField" >
               <li class="field_listLi" v-for="(item, index) in fieldList" :key="index"
                   @click.stop="selectField(item, index)">
+                  {{item}}
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class='classbreak-type'>
+          <span class="option-title">分段方式</span>
+          <div class="class-type-selectBox" v-on:click.stop="typeListArrowDown" title="请选择">
+            <span>{{curType}}</span>
+            <div class="selectBox_show">
+                  <i class="icon icon_arrowDown"></i>
+            </div>
+            <ul class="select_type_list" v-show="isShowTypes" >
+              <li class="type_listLi" v-for="(item, index) in classTypeList" :key="index"
+                  @click.stop="selectType(item, index)">
                   {{item}}
               </li>
             </ul>
@@ -85,7 +100,7 @@
                 <!-- </div> -->
               </div>
             </div>
-            <color-picker type="sketch" v-model="symbol_color" @change="onColorChange"></color-picker>
+            <color-ramp></color-ramp>
           </div>
         </div>
         <div class='line-color'>
@@ -124,7 +139,7 @@
           </div>
         </div>
       </div>
-      <div class ='classbreak-symbol' ref='classbreak' style="display:none">
+      <div class ='unique-symbol' ref='unique' style="display:none">
         <div class='option-field'>
           <span class='option-title'>渲染字段</span>
           <div class="render-field-selectBox" v-on:click.stop="fieldListArrowDown" title="请选择">
@@ -197,18 +212,20 @@
 // import colorPicker from '@caohenghu/vue-colorpicker'
 import { VueColorpicker } from 'vue-pop-colorpicker'
 import colorMaps from 'color_ramps'
+import ColorRamp from '../components/ColorRamp.vue'
 console.log(colorMaps)
 export default {
   name: 'pane',
   components: {
-    'color-picker': VueColorpicker
+    'color-picker': VueColorpicker,
+    'color-ramp': ColorRamp
   },
   data () {
     return {
       renderTypeImageList: [
         {type: '单色填充', imgUrl: require('../assets/img/simple2.png'), onItemClick: this.simpleRenderer},
-        {type: '单值填充', imgUrl: require('../assets/img/unique.jpg'), onItemClick: this.uniqueRenderer},
-        {type: '分段填充', imgUrl: require('../assets/img/classbreak.jpg'), onItemClick: this.classifyRenderer}
+        {type: '分段填充', imgUrl: require('../assets/img/classbreak.jpg'), onItemClick: this.classifyRenderer},
+        {type: '单值填充', imgUrl: require('../assets/img/unique.jpg'), onItemClick: this.uniqueRenderer}
       ],
       dynamic: -1,
       symbol_color: 'green',
@@ -221,6 +238,7 @@ export default {
       width_show: false,
       isShowSelect: false,
       isShowField: false,
+      isShowTypes: false,
       symbolImageList: [
         // {key: -1, value: '请选择'},
         {key: 0, value: '实线', url: require('../assets/img/solid.png')},
@@ -230,7 +248,9 @@ export default {
       ],
       unitUrl: require('../assets/img/solid.png'),
       fieldList: ['id', 'code', 'name', 'popu'],
-      curField: 'code'
+      curField: 'code',
+      classTypeList: ['自然分段', '平均分段', '分位法', '手动分段', 'H-index'],
+      curType: '自然分段'
     }
   },
   mounted: function () {
@@ -282,6 +302,9 @@ export default {
     fieldListArrowDown () {
       this.isShowField = !this.isShowField
     },
+    typeListArrowDown () {
+      this.isShowTypes = !this.isShowTypes
+    },
     select (item, index) {
       this.isShowSelect = false
       // console.log(item)
@@ -294,6 +317,13 @@ export default {
       console.log(item)
       console.log(index)
       this.curField = item
+      // this.unitModel = index
+    },
+    selectType (item, index) {
+      this.isShowTypes = false
+      console.log(item)
+      console.log(index)
+      this.curType = item
       // this.unitModel = index
     },
     simpleRenderer (index) {
