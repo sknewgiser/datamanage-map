@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <app-menu></app-menu>
-    <app-pane></app-pane>
-    <app-map></app-map>
+    <app-pane v-on:paramsListener="paramsFromPane"></app-pane>
+    <app-map ref="map"></app-map>
   </div>
 </template>
 
@@ -19,6 +19,12 @@ export default {
   },
   data () {
     return {
+    }
+  },
+  methods: {
+    paramsFromPane (params) {
+      console.log(params)
+      this.$refs.map.setRender(params)
     }
   }
 }

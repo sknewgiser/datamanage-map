@@ -39,9 +39,10 @@ export default {
     onColorRampsArrowDown () {
       this.isShowColorRamps = !this.isShowColorRamps
     },
-    onSelectRampItem (index) {
+    onSelectRampItem (key) {
       this.isShowColorRamps = false
-      console.log(index)
+      console.log(key)
+      this.curColorRamp = ColorRamps[key]
       // 点击添加字体颜色，其他的删除class名
     }
   }
@@ -59,10 +60,16 @@ export default {
     cursor: pointer;
 }
 .color-ramp-bar-list{
-    width: 92px;
-    margin-left: -33px;
+    width: 114px;
+    height: 300px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    margin-left: -53px;
     margin-top: -2px;
-    border: 1px solid blue;
+    position: absolute;
+    z-index: 10;
+    background: rgb(255, 255, 255);
+    box-shadow: 2px 3px 3px 2px #bfcbd9;
 }
 .default-color-list{
     width: 69px !important;
@@ -86,11 +93,12 @@ export default {
 }
 /* .el-scrollbar{
     height: 100%;
-} */
+}
 .el-scrollbar__wrap{
+    overflow: scroll;
     overflow-y: scroll;
     overflow-x: hidden;
-}
+} */
 /* .selectBox_list{
   float: left;
   display: grid;
