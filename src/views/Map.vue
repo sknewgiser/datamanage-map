@@ -6,7 +6,7 @@
 <script>
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet/dist/leaflet-src.js'
-import {basemapLayer, featureLayer} from 'esri-leaflet/dist/esri-leaflet-debug.js'
+import {basemapLayer, featureLayer, query} from 'esri-leaflet/dist/esri-leaflet-debug.js'
 // import Renderers from 'esri-leaflet-renderers/dist/esri-leaflet-renderers.js'
 
 export default {
@@ -18,7 +18,7 @@ export default {
       curRenderType: 'simple',
       fields: [],
       fieldValues: [],
-      renderField: 'Shape_Area',
+      renderField: 'OBJECTID',
       grades: [],
       classBreakColors: ['#BD0026', '#E31A1C', '#FC4E2A']
     }
@@ -29,16 +29,25 @@ export default {
     // let map = L.map('map').setView([45.526, -122.667], 13)
     basemapLayer('Streets').addTo(this.map)
     this.layer = featureLayer({
-      url: 'https://ictgis.thupdi.com:6443/arcgis/rest/services/CityPlat/DataMap/MapServer/0',
+      url: 'http://124.128.48.217:6080/arcgis/rest/services/sdxzj/MapServer/2',
       style: this.customStyle
     }).addTo(this.map)
-    this.layer.on('load', function () {
-      vm.layer.eachFeature(function (layer) {
-        let value = layer.feature.properties[vm.renderField]
-        vm.fieldValues.push(value)
-        vm.fields = vm.fields.length === 0 ? Object.keys(layer.feature.properties) : vm.fields
-      })
+    var southWest = L.latLng(32.51, 116.70)
+    var northEast = L.latLng(36.52, 120.64)
+    var bounds = L.latLngBounds(southWest, northEast)
+
+    let query2 = query({
+      url: 'http://124.128.48.217:6080/arcgis/rest/services/sdxzj/MapServer/2'
     })
+    query2.within(bounds)
+
+    query2.run(function (error, featureCollection, response) {
+      featureCollection.features.forEach(function (feature) {
+        vm.fieldValues.push(feature.properties[vm.renderField])
+      })
+      console.log('Found ' + featureCollection.features.length + ' features')
+    })
+    console.log(this.layer)
   },
   methods: {
     customStyle (feature) {
@@ -49,6 +58,7 @@ export default {
       }
     },
     setRender (params) {
+      var vm = this
       let renderType = params.renderType
       switch (renderType) {
         case 'simple':
@@ -57,11 +67,18 @@ export default {
           })
           break
         case 'classbreak':
+          // this.layer.on('load', function () {
+          //   vm.layer.eachFeature(function (layer) {
+          //     let value = layer.feature.properties[vm.renderField]
+          //     vm.fieldValues.push(value)
+          //     vm.fields = vm.fields.length === 0 ? Object.keys(layer.feature.properties) : vm.fields
+          //   })
           this.layer.setStyle(function (feature) {
             console.log('class')
-            // params.fillColor = this.getColor(feature.properties.Shape_Area * 1000)
+            params.fillColor = vm.getColor(feature.properties.OBJECTID)
             return params
           })
+          // })
           break
         case 'unique':
           this.layer.setStyle(function (feature) {
