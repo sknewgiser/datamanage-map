@@ -18,7 +18,7 @@ export default {
       curRenderType: 'simple',
       fields: [],
       fieldValues: [],
-      renderField: 'Shape_Area',
+      renderField: 'renderval',
       grades: [],
       classBreakColors: ['#BD0026', '#E31A1C', '#FC4E2A']
     }
@@ -58,8 +58,9 @@ export default {
           break
         case 'classbreak':
           this.layer.setStyle(function (feature) {
+            var vm = new Vue()
             console.log('class')
-            // params.fillColor = this.getColor(feature.properties.Shape_Area * 1000)
+            params.fillColor = vm.getColor(feature.properties.renderval * 1000)
             return params
           })
           break
