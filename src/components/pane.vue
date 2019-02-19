@@ -77,7 +77,7 @@
         <div class='classbreak-type'>
           <span class="option-title">分段方式</span>
           <div class="class-type-selectBox" v-on:click.stop="typeListArrowDown" title="请选择">
-            <span>{{curType}}</span>
+            <span>{{curClassifyType}}</span>
             <div class="selectBox_show">
                   <i class="icon icon_arrowDown"></i>
             </div>
@@ -92,7 +92,7 @@
         <div class='classbreak-num'>
           <span class="option-title">分段数量</span>
           <input v-on:click="classify_numChanged" ref="classify_num_range" id="class-num-range" type="range" max=9 min=3 value=3 step=1 />
-          <div class='class-num'>{{classify_num}}</div>
+          <div class='class-num'>{{classifyNum}}</div>
         </div>
         <div class='symbol-color'>
           <span class='option-title'>填充颜色</span>
@@ -105,7 +105,7 @@
                 <!-- </div> -->
               </div>
             </div>
-            <color-ramp></color-ramp>
+            <color-ramp :classifyNum="classifyNum" v-on:colorRamps='getColorRamps'></color-ramp>
           </div>
         </div>
         <div class='line-color'>
@@ -218,12 +218,20 @@
 import { VueColorpicker } from 'vue-pop-colorpicker'
 import colorMaps from 'color_ramps'
 import ColorRamp from '../components/ColorRamp.vue'
+import bus from '../js/bus'
 console.log(colorMaps)
 export default {
   name: 'pane',
   components: {
     'color-picker': VueColorpicker,
     'color-ramp': ColorRamp
+  },
+  created: function () {
+    var self = this
+    bus.$on('fieldsInfo', function (data) {
+      self.fieldList = data
+      self.curField = data[0]
+    })
   },
   data () {
     return {
@@ -271,13 +279,15 @@ export default {
       fieldList: [],
       curField: '',
       classTypeList: ['自然分段', '平均分段', '分位法', '手动分段', 'H-index'],
-      curType: '自然分段',
-      classify_num: 3
+      curClassifyType: '自然分段',
+      classifyNum: 3,
+      colorRamps: []
     }
   },
   mounted: function () {
     this.dynamic = 0
     this.renderParams = {
+      colorRamps: this.colorRamps,
       color: this.simple_line_color,
       weight: this.simple_line_width,
       opacity: this.simple_line_color_opacity,
@@ -287,6 +297,16 @@ export default {
     }
   },
   methods: {
+    getColorRamps (colors) {
+      this.colorRamps = colors
+      this.renderParams.colorRamps = this.colorRamps
+      console.log(colors)
+      this.$emit('paramsListener', this.renderParams)
+    },
+    // sendParamsToMap () {
+    //   let classifyParams = {'renderField': this.curField, 'classifyType': this.curType, 'classifyNum': this.classify_num}
+    //   bus.$emit('paramsInfo', classifyParams)
+    // },
     onFillColorChange (color) {
       console.log(color)
       this.simple_symbol_color = color
@@ -332,7 +352,6 @@ export default {
       let value = this.$refs.simple_range1.value
       this.simple_symbol_color_opacity = value
       this.renderParams.fillOpacity = value
-      // this.$refs.range2.style.background = '-webkit-linear-gradient(#61bd12, #61bd12) no-repeat, #ddd'
       this.$refs.simple_range1.style.backgroundSize = value * 100 + '% 100%'
       this.$emit('paramsListener', this.renderParams)
     },
@@ -340,59 +359,58 @@ export default {
       let value = this.$refs.simple_range2.value
       this.simple_line_color_opacity = value
       this.renderParams.opacity = value
-      // this.$refs.range2.style.background = '-webkit-linear-gradient(#61bd12, #61bd12) no-repeat, #ddd'
       this.$refs.simple_range2.style.backgroundSize = value * 100 + '% 100%'
       this.$emit('paramsListener', this.renderParams)
     },
     classify_rangeChanged1 () {
       let value = this.$refs.classify_range1.value
       this.classify_symbol_color_opacity = value
-      // this.$refs.range2.style.background = '-webkit-linear-gradient(#61bd12, #61bd12) no-repeat, #ddd'
       this.$refs.classify_range1.style.backgroundSize = value * 100 + '% 100%'
+      this.renderParams.fillOpacity = value
+      this.$emit('paramsListener', this.renderParams)
     },
     classify_rangeChanged2 () {
       let value = this.$refs.classify_range2.value
       this.classify_line_color_opacity = value
-      // this.$refs.range2.style.background = '-webkit-linear-gradient(#61bd12, #61bd12) no-repeat, #ddd'
       this.$refs.classify_range2.style.backgroundSize = value * 100 + '% 100%'
+      this.renderParams.opacity = value
+      this.$emit('paramsListener', this.renderParams)
     },
     unique_rangeChanged1 () {
       let value = this.$refs.unique_range1.value
       this.unique_symbol_color_opacity = value
-      // this.$refs.range2.style.background = '-webkit-linear-gradient(#61bd12, #61bd12) no-repeat, #ddd'
       this.$refs.unique_range1.style.backgroundSize = value * 100 + '% 100%'
     },
     unique_rangeChanged2 () {
       let value = this.$refs.unique_range2.value
       this.unique_line_color_opacity = value
-      // this.$refs.range2.style.background = '-webkit-linear-gradient(#61bd12, #61bd12) no-repeat, #ddd'
       this.$refs.unique_range2.style.backgroundSize = value * 100 + '% 100%'
     },
     simple_widthChanged () {
       let value = this.$refs.simple_range3.value
       this.simple_line_width = value
       this.renderParams.weight = value
-      // this.$refs.range2.style.background = '-webkit-linear-gradient(#61bd12, #61bd12) no-repeat, #ddd'
       this.$refs.simple_range3.style.backgroundSize = value * 10 + '% 100%'
       this.$emit('paramsListener', this.renderParams)
     },
     classify_widthChanged () {
       let value = this.$refs.classify_range3.value
       this.classify_line_width = value
-      // this.$refs.range2.style.background = '-webkit-linear-gradient(#61bd12, #61bd12) no-repeat, #ddd'
       this.$refs.classify_range3.style.backgroundSize = value * 10 + '% 100%'
+      this.renderParams.weight = value
+      this.$emit('paramsListener', this.renderParams)
     },
     unique_widthChanged () {
       let value = this.$refs.unique_range3.value
       this.unique_line_width = value
-      // this.$refs.range2.style.background = '-webkit-linear-gradient(#61bd12, #61bd12) no-repeat, #ddd'
       this.$refs.unique_range3.style.backgroundSize = value * 10 + '% 100%'
     },
     classify_numChanged () {
       let value = this.$refs.classify_num_range.value
-      this.classify_num = value
-      // this.$refs.range2.style.background = '-webkit-linear-gradient(#61bd12, #61bd12) no-repeat, #ddd'
+      this.classifyNum = parseInt(value)
       this.$refs.classify_num_range.style.backgroundSize = value * 10 + '% 100%'
+      this.renderParams.classifyNum = this.classifyNum
+      this.$emit('paramsListener', this.renderParams)
     },
     simpleArrowDown () {
       this.isShowSelect = !this.isShowSelect
@@ -424,9 +442,12 @@ export default {
     selectClassifyType (item, index) {
       this.isShowTypes = false
       console.log(index)
-      this.curType = item
+      this.curClassifyType = item
+      this.renderParams.classifyType = this.curClassifyType
+      this.$emit('paramsListener', this.renderParams)
     },
     simpleRenderer (index) {
+      this.renderParams = {}
       this.renderParams.renderType = 'simple'
       this.dynamic = index
       this.$refs.simple.style.display = 'block'
@@ -435,6 +456,7 @@ export default {
       this.$emit('paramsListener', this.renderParams)
     },
     uniqueRenderer (index) {
+      this.renderParams = {}
       this.renderParams.renderType = 'unique'
       this.dynamic = index
       this.$refs.simple.style.display = 'none'
@@ -443,6 +465,7 @@ export default {
       this.$emit('paramsListener', this.renderParams)
     },
     classifyRenderer (index) {
+      this.renderParams = {}
       this.renderParams.renderType = 'classbreak'
       this.dynamic = index
       this.$refs.simple.style.display = 'none'

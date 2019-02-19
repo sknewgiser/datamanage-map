@@ -245,7 +245,7 @@ input[type=range]::-webkit-slider-thumb {
   margin-top: 6px;
   margin-left: -1px;
   width: 92px;
-  height: 100px;
+  height: auto;
   border: 1px solid #bfcbd9;
   border-radius: 2px;
   justify-content: center;
@@ -276,7 +276,7 @@ li{
   /* width: 100%; */
   text-overflow: ellipsis;
   overflow: hidden;
-  margin-left: -87px;
+  margin-left: -62px;
   background-image: none;
   font-size: 13px;
   color: #5f646e;

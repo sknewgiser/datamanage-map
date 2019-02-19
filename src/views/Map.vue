@@ -7,38 +7,67 @@
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet/dist/leaflet-src.js'
 import {basemapLayer, featureLayer} from 'esri-leaflet/dist/esri-leaflet-debug.js'
-// import Renderers from 'esri-leaflet-renderers/dist/esri-leaflet-renderers.js'
+import bus from '../js/bus'
+import Renderers from 'esri-leaflet-renderers/dist/esri-leaflet-renderers.js'
 
 export default {
   name: 'map-container',
+  created: function () {
+    bus.$on('paramsInfo', function (data) {
+      this.renderField = data
+    })
+  },
   data () {
     return {
-      map: null,
-      layer: null,
       curRenderType: 'simple',
       fields: [],
       fieldValues: [],
-      renderField: 'renderval',
+      renderField: 'objectid',
       grades: [],
-      classBreakColors: ['#BD0026', '#E31A1C', '#FC4E2A']
+      classBreakColors: ['#BD0026', '#E31A1C', '#FC4E2A'],
+      classify_num: 3,
+      classify_type: '自然分段'
     }
   },
   mounted: function () {
     var vm = this
-    this.map = L.map('map').setView([39.56, 116.34], 10)
-    // let map = L.map('map').setView([45.526, -122.667], 13)
+    this.map = L.map('map').setView([39.56, 116.34], 7)
     basemapLayer('Streets').addTo(this.map)
     this.layer = featureLayer({
       url: 'https://ictgis.thupdi.com:6443/arcgis/rest/services/CityPlat/DataMap/MapServer/0',
       style: this.customStyle
     }).addTo(this.map)
-    this.layer.on('load', function () {
-      vm.layer.eachFeature(function (layer) {
-        let value = layer.feature.properties[vm.renderField]
-        vm.fieldValues.push(value)
-        vm.fields = vm.fields.length === 0 ? Object.keys(layer.feature.properties) : vm.fields
+
+    // var southWest = L.latLng(32.51, 116.70)
+    // var northEast = L.latLng(36.52, 120.64)
+    var southWest = this.map.getBounds()['_southWest']
+    var northEast = this.map.getBounds()['_northEast']
+    var bounds = L.latLngBounds(southWest, northEast)
+
+    let query = this.layer.query()
+    query.within(bounds)
+
+    query.run(function (error, featureCollection, response) {
+      featureCollection.features.forEach(function (feature) {
+        vm.fieldValues.push(feature.properties[vm.renderField])
+      })
+      let allFields = Object.keys(featureCollection.features[0].properties)
+      let allValues = Object.values(featureCollection.features[0].properties)
+      for (let i = 0; i < allFields.length; i++) {
+        if (typeof allValues[i] === 'string' && allValues[i].constructor === String) {
+          continue
+        } else {
+          vm.fields.push(allFields[i])
+        }
+      }
+      vm.sendParamsToPane()
+      bus.$on('paramsInfo', function (data) {
+        this.renderField = data['renderField']
+        this.classify_num = data['classifyNum']
+        this.classify_type = data['classifyType']
       })
     })
+    console.log(this.layer)
   },
   methods: {
     customStyle (feature) {
@@ -48,8 +77,15 @@ export default {
         fillColor: 'red'
       }
     },
+    sendParamsToPane () {
+      // let fieldsInfo = {'avaliableFields': this.fields, renderField: this.renderField}
+      bus.$emit('fieldsInfo', this.fields)
+    },
     setRender (params) {
+      var vm = this
       let renderType = params.renderType
+      this.classBreakColors = params.colorRamps || this.classBreakColors
+      this.classify_num = params.classifyNum || this.classify_num
       switch (renderType) {
         case 'simple':
           this.layer.setStyle(function (feature) {
@@ -58,9 +94,10 @@ export default {
           break
         case 'classbreak':
           this.layer.setStyle(function (feature) {
-            var vm = new Vue()
-            console.log('class')
-            params.fillColor = vm.getColor(feature.properties.renderval * 1000)
+            // console.log(feature.properties['名称'], feature.properties['所属县区'])
+            if (vm.fieldValues.length > 0) {
+              params.fillColor = vm.getColor(feature.properties[vm.renderField])
+            }
             return params
           })
           break
@@ -73,7 +110,7 @@ export default {
     },
     getColor (v) {
       this.fieldValues.sort((a, b) => (a - b))
-      this.grades = this.getJenksBreaks(this.fieldValues, 3)
+      this.grades = this.getJenksBreaks(this.fieldValues, this.classify_num)
       this.grades.unshift(parseInt(this.fieldValues[0]))
       for (let i = 0; i < this.grades.length - 1; i++) {
         if (v > this.grades[i] && v <= this.grades[i + 1]) {
@@ -128,7 +165,7 @@ export default {
                 mat1[l][j] = i3
                 mat2[l][j] = v + mat2[i4][j - 1]
 
-                if (l === 200 && j === 5) alert('l=' + 200 + ',j=' + 5 + ';mat2[200][5]=' + mat1[l][j] + 'i3=' + i3)
+              //  if (l === 200 && j === 5) alert('l=' + 200 + ',j=' + 5 + ';mat2[200][5]=' + mat1[l][j] + 'i3=' + i3)
               }
             }
           }

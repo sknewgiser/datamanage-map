@@ -1,7 +1,7 @@
 <template>
   <div id="color-ramp" class="color-ramp-bar-selectbox" v-on:click.stop="onColorRampsArrowDown">
     <ul class='default-color-list'>
-        <li class='default-color' style="float:left;overflow:hidden;" v-for="(color,index) in curColorRamp[7]" :key='index' :style="{background:color, width: (100/7)+'%'}"></li>
+        <li class='default-color' style="float:left;overflow:hidden;" v-for="(color,index) in curColorRamp[classifyNum]" :key='index' :style="{background:color, width: (100/classifyNum)+'%'}"></li>
     </ul>
     <div class="select-box-show">
         <i class="icon icon_arrowDown"></i>
@@ -12,7 +12,7 @@
             @click.stop="onSelectRampItem(key)">
                 <div class='color-ramp-bar' >
                     <ul class='color-list' style="display:list-item" >
-                        <li class='color' v-for="(color,index) in colorRamps[7]" :key='index' :style="{background:color, width: (100/7)+'%'}"></li>
+                        <li class='color' v-for="(color,index) in colorRamps[classifyNum]" :key='index' :style="{background:color, width: (100/classifyNum)+'%'}"></li>
                     </ul>
                 </div>
                 <i class="icon color-bar"></i>
@@ -28,6 +28,11 @@ let colors = ColorRamps
 console.log(colors)
 export default {
   name: 'ColorRamp',
+  props: {
+    classifyNum: {
+      type: Number
+    }
+  },
   data () {
     return {
       isShowColorRamps: false,
@@ -43,6 +48,7 @@ export default {
       this.isShowColorRamps = false
       console.log(key)
       this.curColorRamp = ColorRamps[key]
+      this.$emit('colorRamps', this.curColorRamp[this.classifyNum])
       // 点击添加字体颜色，其他的删除class名
     }
   }
