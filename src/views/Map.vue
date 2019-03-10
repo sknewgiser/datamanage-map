@@ -8,40 +8,58 @@ import 'leaflet/dist/leaflet.css'
 import L from 'leaflet/dist/leaflet-src.js'
 import {basemapLayer, featureLayer} from 'esri-leaflet/dist/esri-leaflet-debug.js'
 import bus from '../js/bus'
-import Renderers from 'esri-leaflet-renderers/dist/esri-leaflet-renderers.js'
+import 'esri-leaflet-renderers/dist/esri-leaflet-renderers-debug.js'
 
 export default {
   name: 'map-container',
   created: function () {
-    bus.$on('paramsInfo', function (data) {
-      this.renderField = data
-    })
+    console.log('come on')
   },
   data () {
     return {
+      map: null,
+      layer: null,
       curRenderType: 'simple',
       fields: [],
       fieldValues: [],
-      renderField: 'objectid',
+      testValues: [],
+      renderField: 'OBJECTID',
       grades: [],
-      classBreakColors: ['#BD0026', '#E31A1C', '#FC4E2A'],
+      classBreakColors: ['#BD0026', '#E31A1C', '#FC4E2A','#FD8D3C'],
       classify_num: 3,
-      classify_type: '自然分段'
+      classify_type: '自然分段',
+      serviceInfo: {
+        drawingInfo: {
+          'renderer': {
+            'type': 'classBreaks',
+            'field': 'OBJECTID',
+            'defaultSymbol': null,
+            'minValue': 0,
+            'classBreakInfos': [],
+            'uniqueValueInfos': []
+          },
+          'label': '',
+          'description': ''
+        },
+        'transparency': 1,
+        'labelingInfo': null
+      }
     }
   },
   mounted: function () {
     var vm = this
-    this.map = L.map('map').setView([39.56, 116.34], 7)
-    basemapLayer('Streets').addTo(this.map)
-    this.layer = featureLayer({
-      url: 'https://ictgis.thupdi.com:6443/arcgis/rest/services/CityPlat/DataMap/MapServer/0',
-      style: this.customStyle
-    }).addTo(this.map)
+    vm.map = L.map('map').setView([32.56, 117.34], 7)
+    basemapLayer('Streets').addTo(vm.map)
+    vm.layer = featureLayer({
+      url: 'http://124.128.48.217:6080/arcgis/rest/services/sdxzj/MapServer/2'
+      // style: this.customStyle
+    }).addTo(vm.map)
 
-    // var southWest = L.latLng(32.51, 116.70)
-    // var northEast = L.latLng(36.52, 120.64)
+    // var southWest = L.latLng(29.51, 115.70)
+    // var northEast = L.latLng(38.52, 124.64)
     var southWest = this.map.getBounds()['_southWest']
     var northEast = this.map.getBounds()['_northEast']
+    console.log(southWest, northEast)
     var bounds = L.latLngBounds(southWest, northEast)
 
     let query = this.layer.query()
@@ -51,20 +69,14 @@ export default {
       featureCollection.features.forEach(function (feature) {
         vm.fieldValues.push(feature.properties[vm.renderField])
       })
-      let allFields = Object.keys(featureCollection.features[0].properties)
-      let allValues = Object.values(featureCollection.features[0].properties)
-      for (let i = 0; i < allFields.length; i++) {
-        if (typeof allValues[i] === 'string' && allValues[i].constructor === String) {
-          continue
-        } else {
-          vm.fields.push(allFields[i])
-        }
-      }
+      console.log(vm.fieldValues)
+      vm.fields = Object.keys(featureCollection.features[0].properties)
+      vm.testValues = Object.values(featureCollection.features[0].properties)
       vm.sendParamsToPane()
       bus.$on('paramsInfo', function (data) {
-        this.renderField = data['renderField']
-        this.classify_num = data['classifyNum']
-        this.classify_type = data['classifyType']
+        vm.renderField = data['renderField']
+        vm.classify_num = data['classifyNum']
+        vm.classify_type = data['classifyType']
       })
     })
     console.log(this.layer)
@@ -74,18 +86,21 @@ export default {
       return {
         color: '#ffff',
         width: 2,
-        fillColor: 'red'
+        fillColor: 'red',
+        fillOpacity: 1
       }
     },
     sendParamsToPane () {
+      let fieldsInfo = [this.fields, this.testValues]
       // let fieldsInfo = {'avaliableFields': this.fields, renderField: this.renderField}
-      bus.$emit('fieldsInfo', this.fields)
+      bus.$emit('fieldsInfo', fieldsInfo)
     },
     setRender (params) {
       var vm = this
       let renderType = params.renderType
-      this.classBreakColors = params.colorRamps || this.classBreakColors
-      this.classify_num = params.classifyNum || this.classify_num
+      if (!renderType) {
+        renderType = 'simple'
+      }
       switch (renderType) {
         case 'simple':
           this.layer.setStyle(function (feature) {
@@ -93,19 +108,115 @@ export default {
           })
           break
         case 'classbreak':
-          this.layer.setStyle(function (feature) {
-            // console.log(feature.properties['名称'], feature.properties['所属县区'])
-            if (vm.fieldValues.length > 0) {
-              params.fillColor = vm.getColor(feature.properties[vm.renderField])
-            }
-            return params
+          this.serviceInfo.drawingInfo.renderer.type = 'classBreaks'
+          let tempClassBreakColors = params.colorRamps || this.classBreakColors
+          tempClassBreakColors = tempClassBreakColors.map(vm.transformationRgba)
+          tempClassBreakColors = tempClassBreakColors.map(function (v, i) {
+            v.pop()
+            v.push(parseInt((params.fillOpacity || 1) * 255))
+            return v
           })
+          this.classify_num = params.classifyNum || this.classify_num
+          this.grades = vm.getJenksBreaks(this.fieldValues, this.classify_num)
+          let lineColor = vm.transformationRgba(params.color || '#030303')
+          lineColor.pop()
+          lineColor.push(parseInt((params.opacity || 1) * 255))
+          this.serviceInfo.transparency = params.fillOpacity || 0
+          for (let i = 0; i < this.grades.length; i++) {
+            this.serviceInfo.drawingInfo.renderer.classBreakInfos.push(
+              {
+                'classMaxValue': this.grades[i],
+                'symbol': {
+                  'type': 'esriSFS',
+                  'style': 'esriSFSSolid',
+                  'color': tempClassBreakColors[i],
+                  'outline': {
+                    'type': 'esriSLS',
+                    'style': params.lineType || 'esriSLSolid',
+                    'color': lineColor,
+                    'width': params.weight || 1
+                  }
+                }
+              }
+            )
+          }
+          vm.map.removeLayer(vm.layer)
+          vm.layer = featureLayer({
+            url: vm.layer.options.url
+          }).addTo(this.map)
+          vm.layer._setRenderers(this.serviceInfo)
+          this.serviceInfo.drawingInfo.renderer.classBreakInfos = []
           break
         case 'unique':
-          this.layer.setStyle(function (feature) {
-            return params
+          this.serviceInfo.drawingInfo.renderer.type = 'uniqueValue'
+          this.serviceInfo.drawingInfo.renderer.field = 'OBJECTID'
+          let tempColors = params.colorRamps || this.classBreakColors
+          tempColors = tempColors.map(vm.transformationRgba)
+          tempColors = tempColors.map(function (v, i) {
+            v.pop()
+            v.push(parseInt((params.fillOpacity || 1) * 255))
+            return v
           })
+          lineColor = vm.transformationRgba(params.color || '#030303')
+          lineColor.pop()
+          lineColor.push(parseInt((params.opacity || 1) * 255))
+          this.serviceInfo.transparency = params.fillOpacity || 0
+          
+          for (let j = 0; j < this.fieldValues.length; j++) {
+            let k = Math.floor(Math.random() * tempColors.length)
+            let fillColor = tempColors[k]
+            this.serviceInfo.drawingInfo.renderer.uniqueValueInfos.push(
+              {
+                'value': this.fieldValues[j],
+                'symbol': {
+                  'type': 'esriSFS',
+                  'style': 'esriSFSSolid',
+                  'color': fillColor,
+                  'outline': {
+                    'type': 'esriSLS',
+                    'style': params.lineType || 'esriSLSolid',
+                    'color': lineColor,
+                    'width': params.weight || 1
+                  }
+                }
+              }
+            )
+          }
+          vm.map.removeLayer(vm.layer)
+          vm.layer = featureLayer({
+            url: vm.layer.options.url
+          }).addTo(this.map)
+          vm.layer._setRenderers(this.serviceInfo)
+          // delete this.serviceInfo.drawingInfo.renderer.field1
+          this.serviceInfo.drawingInfo.renderer.uniqueValueInfos = []
+          // this.layer.setStyle(function (feature) {
+          //   return params
+          // })
           break
+      }
+    },
+    transformationRgba (color) {
+      let colors = color.toLowerCase()
+      let arr = []
+      if (colors.indexOf('#') !== -1) {
+        for (let i = 1; i < 7; i += 2) {
+          let str = colors.slice(i, i + 2)
+          arr.push(parseInt(str, 16))
+        }
+        arr.push(255)
+        return arr
+      }
+      // rgba(300,300,300)
+      if (colors.indexOf('rgb') !== -1) {
+        let reg = /rgb\((.+)\)/
+        colors.replace(reg, function (a, b) {
+          arr = b.split(',')
+        })
+        arr = arr.map(function (v, i) {
+          return parseInt(v)
+        })
+        arr.push(255)
+        return arr
       }
     },
     getColor (v) {
@@ -119,6 +230,7 @@ export default {
       }
     },
     getJenksBreaks (data, numclass) {
+      data.sort((a, b) => (a - b))
       let numdata = data.length
       let mat1 = []
       let mat2 = []

@@ -30,7 +30,8 @@ export default {
   name: 'ColorRamp',
   props: {
     classifyNum: {
-      type: Number
+      type: Number,
+      default: 4
     }
   },
   data () {

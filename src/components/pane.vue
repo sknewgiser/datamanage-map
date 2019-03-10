@@ -171,7 +171,7 @@
                 <!-- </div> -->
               </div>
             </div>
-            <color-ramp></color-ramp>
+            <color-ramp v-on:colorRamps='getColorRamps'></color-ramp>
           </div>
         </div>
         <div class='line-color'>
@@ -227,11 +227,11 @@ export default {
     'color-ramp': ColorRamp
   },
   created: function () {
-    var self = this
-    bus.$on('fieldsInfo', function (data) {
-      self.fieldList = data
-      self.curField = data[0]
-    })
+    // var self = this
+    // bus.$on('fieldsInfo', function (data) {
+    //   self.fieldList = data
+    //   self.curField = data[0]
+    // })
   },
   data () {
     return {
@@ -271,17 +271,23 @@ export default {
       symbolImageList: [
         // {key: -1, value: '请选择'},
         {key: 0, name: '实线', value: '0', url: require('../assets/img/solid.png')},
-        {key: 1, name: '短虚线', value: '5', url: require('../assets/img/dotdash.png')},
+        {key: 1, name: '短虚线', value: '5', url: require('../assets/img/shortdash.png')},
         {key: 2, name: '长虚线', value: '10', url: require('../assets/img/longdash.png')},
-        {key: 3, name: '点虚线', value: '2', url: require('../assets/img/shortdash.png')}
+        {key: 3, name: '点线', value: '2', url: require('../assets/img/dotdash.png')},
+        {key: 4, name: '点虚线', value: '2', url: require('../assets/img/dashdotdot.png')}
       ],
       unitUrl: require('../assets/img/solid.png'),
       fieldList: [],
+      allFields: [],
+      fieldValues: [],
       curField: '',
       classTypeList: ['自然分段', '平均分段', '分位法', '手动分段', 'H-index'],
       curClassifyType: '自然分段',
       classifyNum: 3,
-      colorRamps: []
+      colorRamps: [],
+      symboltypes: {0: 'esriSMS', 1: 'esriSFS', 2: 'esriSLS', 3: 'esriPMS'},
+      markertypes: {0: 'esriSMSCircle', 1: 'esriSMSCross', 2: 'esriSMSDiamond', 3: 'esriSMSSquare', 4: 'esriSMSX', 5: 'esriPMS'},
+      linetypes: {0: 'esriSLSSolid', 1: 'esriSLSDash', 2: 'esriSLSDash', 3: 'esriSLSDot', 4: 'esriSLSDashDot'}
     }
   },
   mounted: function () {
@@ -295,6 +301,7 @@ export default {
       fillColor: this.simple_symbol_color,
       dashArray: '2'
     }
+    this.getParamsFromMap()
   },
   methods: {
     getColorRamps (colors) {
@@ -303,10 +310,32 @@ export default {
       console.log(colors)
       this.$emit('paramsListener', this.renderParams)
     },
-    // sendParamsToMap () {
-    //   let classifyParams = {'renderField': this.curField, 'classifyType': this.curType, 'classifyNum': this.classify_num}
-    //   bus.$emit('paramsInfo', classifyParams)
-    // },
+    getParamsFromMap () {
+      let self = this
+      bus.$on('fieldsInfo', function (data) {
+        self.allFields = data[0]
+        self.allValues = data[1]
+      })
+    },
+    filterField (renderType) {
+      this.fieldList = []
+      if (renderType === 'classbreak') {
+        for (let i = 0; i < this.allFields.length; i++) {
+          if (typeof this.allValues[i] === 'string' && this.allValues[i].constructor === String) {
+            continue
+          } else {
+            console.log(i)
+            this.fieldList.push(this.allFields[i])
+          }
+        }
+      } else {
+        this.fieldList = this.allFields
+      }
+    },
+    sendParamsToMap () {
+      let classifyParams = {'renderField': this.curField, 'classifyType': this.curType, 'classifyNum': this.classify_num}
+      bus.$emit('paramsInfo', classifyParams)
+    },
     onFillColorChange (color) {
       console.log(color)
       this.simple_symbol_color = color
@@ -366,7 +395,7 @@ export default {
       let value = this.$refs.classify_range1.value
       this.classify_symbol_color_opacity = value
       this.$refs.classify_range1.style.backgroundSize = value * 100 + '% 100%'
-      this.renderParams.fillOpacity = value
+      this.renderParams.fillOpacity = parseFloat(value)
       this.$emit('paramsListener', this.renderParams)
     },
     classify_rangeChanged2 () {
@@ -380,11 +409,15 @@ export default {
       let value = this.$refs.unique_range1.value
       this.unique_symbol_color_opacity = value
       this.$refs.unique_range1.style.backgroundSize = value * 100 + '% 100%'
+      this.renderParams.fillOpacity = parseFloat(value)
+      this.$emit('paramsListener', this.renderParams)
     },
     unique_rangeChanged2 () {
       let value = this.$refs.unique_range2.value
       this.unique_line_color_opacity = value
       this.$refs.unique_range2.style.backgroundSize = value * 100 + '% 100%'
+      this.renderParams.opacity = value
+      this.$emit('paramsListener', this.renderParams)
     },
     simple_widthChanged () {
       let value = this.$refs.simple_range3.value
@@ -404,13 +437,17 @@ export default {
       let value = this.$refs.unique_range3.value
       this.unique_line_width = value
       this.$refs.unique_range3.style.backgroundSize = value * 10 + '% 100%'
+      this.renderParams.weight = value
+      this.$emit('paramsListener', this.renderParams)
     },
     classify_numChanged () {
       let value = this.$refs.classify_num_range.value
       this.classifyNum = parseInt(value)
       this.$refs.classify_num_range.style.backgroundSize = value * 10 + '% 100%'
       this.renderParams.classifyNum = this.classifyNum
-      this.$emit('paramsListener', this.renderParams)
+      if (this.renderParams.colorRamps) {
+        this.$emit('paramsListener', this.renderParams)
+      }
     },
     simpleArrowDown () {
       this.isShowSelect = !this.isShowSelect
@@ -431,6 +468,7 @@ export default {
       this.isShowSelect = false
       this.unitUrl = item.url
       this.renderParams.dashArray = item.value
+      this.renderParams.lineType = this.linetypes[item.key]
       this.$emit('paramsListener', this.renderParams)
     },
     selectField (item, index) {
@@ -438,6 +476,7 @@ export default {
       console.log(item)
       console.log(index)
       this.curField = item
+      this.sendParamsToMap()
     },
     selectClassifyType (item, index) {
       this.isShowTypes = false
@@ -456,6 +495,7 @@ export default {
       this.$emit('paramsListener', this.renderParams)
     },
     uniqueRenderer (index) {
+      this.filterField('unique')
       this.renderParams = {}
       this.renderParams.renderType = 'unique'
       this.dynamic = index
@@ -465,6 +505,7 @@ export default {
       this.$emit('paramsListener', this.renderParams)
     },
     classifyRenderer (index) {
+      this.filterField('classbreak')
       this.renderParams = {}
       this.renderParams.renderType = 'classbreak'
       this.dynamic = index
@@ -475,6 +516,7 @@ export default {
     }
   },
   watch: {
+
   }
 }
 </script>
